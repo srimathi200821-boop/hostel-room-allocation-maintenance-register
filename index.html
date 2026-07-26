@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<title>Hostel Room Allocation & Maintenance Complaint Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+ <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+<div class="page-bg"></div>
+<div class="page-scrim"></div>
+
+<header class="site-header">
+  <div class="header-scrim"></div>
+
+  <div class="header-inner">
+    <div class="header-title">
+      <i class="fa-solid fa-building-columns"></i>
+      <div>
+        <h1>Hostel Room Allocation &amp; Maintenance Register</h1>
+        <p class="subtitle">Occupancy &amp; complaint tracker for the warden's desk</p>
+      </div>
+    </div>
+    <span class="ledger-tag">Register No. 2026</span>
+  </div>
+</header>
+
+<main class="container">
+
+  
+  <section class="stats" id="stats" aria-label="Overview">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-door-open"></i></div>
+      <span class="stat-value" id="statTotal">0</span>
+      <span class="stat-label">Total Rooms</span>
+    </div>
+    <div class="stat-card vacant">
+      <div class="stat-icon"><i class="fa-solid fa-bed"></i></div>
+      <span class="stat-value" id="statVacant">0</span>
+      <span class="stat-label">Vacant Rooms</span>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+      <span class="stat-value" id="statPending">0</span>
+      <span class="stat-label">Open Complaints</span>
+    </div>
+    <div class="stat-card overdue">
+      <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <span class="stat-value" id="statOverdue">0</span>
+      <span class="stat-label">Overdue (&gt;7 days)</span>
+    </div>
+  </section>
+
+  
+  <section class="top-bar">
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search by room number or occupant name">
+    </div>
+    <select id="statusFilter">
+      <option value="All">All Status</option>
+      <option value="Pending">Pending</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Resolved">Resolved</option>
+    </select>
+    <button id="addBtn" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Add Record
+    </button>
+  </section>
+
+  
+  <div id="loadingState" class="state-message hidden">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <p>Loading records…</p>
+  </div>
+
+  <div id="emptyState" class="state-message hidden">
+    <i class="fa-solid fa-clipboard"></i>
+    <h3>No records found</h3>
+    <p id="emptyStateText">Add a new complaint or occupancy record to get started.</p>
+    <button id="resetSearchBtn" class="btn btn-ghost hidden">Show All Records</button>
+  </div>
+
+  <div id="errorState" class="state-message hidden">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <h3>Something went wrong</h3>
+    <p id="errorStateText">Unable to load records.</p>
+    <button id="retryBtn" class="btn btn-ghost">Reload</button>
+  </div>
+
+  
+  <section class="table-container" id="tableContainer">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Room</th>
+            <th>Block</th>
+            <th>Occupant</th>
+            <th>Complaint</th>
+            <th>Reported</th>
+            <th>Status</th>
+            <th>Resolved</th>
+            <th>Days Pending</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <h2 id="modalTitle">Add New Record</h2>
+
+    <form id="recordForm" novalidate>
+      <input type="hidden" id="recordId">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="roomNo">Room Number *</label>
+          <input type="text" id="roomNo" placeholder="e.g. 204">
+          <span class="error-text" id="err-roomNo"></span>
+        </div>
+        <div class="form-group">
+          <label for="block">Block *</label>
+          <input type="text" id="block" placeholder="e.g. B">
+          <span class="error-text" id="err-block"></span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="occupant">Occupant Name</label>
+        <input type="text" id="occupant" placeholder="Leave blank if room is vacant">
+      </div>
+
+      <div class="form-group">
+        <label for="complaint">Complaint Type</label>
+        <input type="text" id="complaint" placeholder="e.g. Leaking Tap, or leave blank">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reportedDate">Reported Date</label>
+          <input type="date" id="reportedDate">
+          <span class="error-text" id="err-reportedDate"></span>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status">
+            <option>Pending</option>
+            <option>In Progress</option>
+            <option>Resolved</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="resolvedDate">Resolved Date</label>
+        <input type="date" id="resolvedDate">
+        <span class="error-text" id="err-resolvedDate"></span>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="submit" id="saveBtn" class="btn btn-primary">Save Record</button>
+        <button type="button" id="deleteBtn" class="btn btn-danger hidden">Delete</button>
+        <button type="button" id="cancelBtn" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div id="toast" class="toast">
+  <i class="fa-solid fa-circle-check"></i>
+  <span id="toastText">Saved</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
